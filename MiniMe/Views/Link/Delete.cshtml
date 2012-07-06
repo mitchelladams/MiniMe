@@ -1,0 +1,43 @@
+﻿@model MiniMe.Models.Link
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<fieldset>
+    <legend>Link</legend>
+
+    <div class="display-label">DateCreated</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.DateCreated)
+    </div>
+
+    <div class="display-label">ShortCode</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.ShortCode)
+    </div>
+
+    <div class="display-label">DestinationUrl</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.DestinationUrl)
+    </div>
+
+    <div class="display-label">AccessCount</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.AccessCount)
+    </div>
+
+    <div class="display-label">LastAccessed</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.LastAccessed)
+    </div>
+</fieldset>
+@using (Html.BeginForm()) {
+    <p>
+        <input type="submit" value="Delete" /> |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+}

@@ -1,0 +1,7 @@
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe\bin\MiniMe.dll
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe\bin\MiniMe.pdb
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe\bin\EntityFramework.dll
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe\bin\EntityFramework.xml
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe\obj\Debug\MiniMe.dll
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe\obj\Debug\MiniMe.pdb

@@ -1,0 +1,12 @@
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe.Tests\bin\Debug\MiniMe.Tests.dll.config
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe.Tests\bin\Debug\MiniMe.Tests.dll
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe.Tests\bin\Debug\MiniMe.Tests.pdb
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe.Tests\bin\Debug\MiniMe.dll
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe.Tests\bin\Debug\nunit.framework.dll
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe.Tests\bin\Debug\EntityFramework.dll
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe.Tests\bin\Debug\MiniMe.pdb
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe.Tests\bin\Debug\nunit.framework.xml
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe.Tests\bin\Debug\EntityFramework.xml
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe.Tests\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe.Tests\obj\Debug\MiniMe.Tests.dll
+C:\Users\Mitchell Adams\Desktop\MVCUrlShortener\MiniMe\MiniMe.Tests\obj\Debug\MiniMe.Tests.pdb
