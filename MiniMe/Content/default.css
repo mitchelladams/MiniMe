@@ -1,0 +1,115 @@
+﻿body {
+    background-color: #3b5999;
+    font-size: .85em;
+    font-family: "Trebuchet MS", Verdana, Helvetica, Sans-Serif;
+    margin: 0;
+    padding: 0;
+    color: #FFFFFF;
+}
+
+
+.page {
+    width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+header h1, #header h1 {
+    font-weight: bold;    
+    margin: 0;
+    line-height: 2em;
+    font-size: 26px !important;
+    text-align:center;
+}
+
+
+
+#main {
+    padding: 30px 30px 15px 30px;
+    background-color: #fff;
+    border-radius: 8px 8px 0 0;
+    -webkit-border-radius: 8px 8px 0 0;
+    -moz-border-radius: 8px 8px 0 0;
+    text-align:center;
+}
+
+
+
+
+
+footer, 
+#footer {
+    background-color: #fff;
+    color: #999;
+    padding: 10px 0;
+    text-align: center;
+    line-height: normal;
+    margin: 0 0 10px 0;
+    font-size: .9em;
+    border-radius: 0 0 8px 8px;
+    -webkit-border-radius: 0 0 8px 8px;
+    -moz-border-radius: 0 0 8px 8px;
+}
+
+
+
+
+input[type="url"] {
+    border: 1px solid #ccc;
+    padding: 2px;
+    font-size: 1.2em;
+    color: #444;
+    width: 200px;
+    background-image: url('http://localhost:58342/content/images/link.png');
+    background-repeat: no-repeat;    
+    padding-left:22px;
+}
+
+input[type="submit"] {
+    padding: 4px;
+}
+
+#shortenedURL
+{
+    background-color:#d2ddf7;
+    color:#3f3f3f;
+    width:80%;
+    margin:0 auto;
+    padding:5px;
+    text-align:left;
+    border-radius:8px;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+}
+
+
+
+/* Login and Account Menu */
+#logindisplay {
+    float:right;
+    position:absolute;
+    right:0;
+    top:0;
+    padding: 2px 10px 5px 10px;
+    color: #FFFFFF;
+    background-color:#6e84b5;
+     border-radius: 0 0 0 8px;
+    -webkit-border-radius: 0 0 0 8px;
+    -moz-border-radius: 0 0 0 8px;
+}
+
+#logindisplay a:link {
+    color: white;
+    text-decoration: none;
+}
+
+#logindisplay a:visited {
+    color: white;
+    text-decoration: none;
+}
+
+#logindisplay a:hover {
+    color: white;
+    text-decoration: none;
+}

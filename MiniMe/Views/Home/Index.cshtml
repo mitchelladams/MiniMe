@@ -1,26 +1,50 @@
 ﻿@model MiniMe.Models.Link
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Shorten a Link";
 }
 
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
 
+<script lang="en" type="text/javascript">
+
+    $('#create').click(function () {
+
+        var Link = { DestinationURL: $('#DestinationURL').val() };
+
+        alert("clicked");
+        $.ajax({
+
+            url: '/Index',
+            type: "POST",
+            data: JSON.stringify(Link),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function () { $('#shortenedURL').html('new link success').fadeIn(); },
+            error: function () { $('#shortenedURL').html('new link error').fadeIn(); }
+
+        });
+
+        return false;
+
+    });
+</script>
+
 @using (Html.BeginForm()) {
-    @Html.ValidationSummary(true)         
-        
-        <div class="editor-field">
-            @Html.EditorFor(model => model.DestinationUrl)
-            @Html.ValidationMessageFor(model => model.DestinationUrl)
-        </div>
-               
-        <p>
-            <input type="submit" value="Create" />
-        </p>
+                    
+           @* @Html.EditorFor(model => model.DestinationUrl)
+            @Html.ValidationMessageFor(model => model.DestinationUrl)*@
+    
+            <input type="url" value="Paste any URL" id="DestinationURL" onfocus="this.value='';" />                 
+            <input type="submit" value="Create" id="create" name="create" />
 }
 
-<div>    
+<br />
 
-    http://go.pba.edu/@Html.DisplayFor(model => model.ShortCode)
+<div id="shortenedURL">
+<span id="shortURL"></span> <img src="/content/images/page_copy.png" />
+
+
+
 </div>

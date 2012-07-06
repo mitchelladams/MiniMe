@@ -20,16 +20,22 @@ namespace MiniMe.Controllers
         }
 
         [HttpPost]
-        public ActionResult Index(Link link)
+        public JsonResult Index(Link link)
         {
+            string ShortenedURL = "";
+            JsonResult result = new JsonResult();
+            result.JsonRequestBehavior = JsonRequestBehavior.AllowGet;
+            result.Data = new { ShortenedURL = ShortenedURL };
+
             if (ModelState.IsValid)
-            {
+            {             
                 //Check to see if the URL already exists in the database
                 Link ExistLink = db.Links.SingleOrDefault(l => l.DestinationUrl.ToLower() == link.DestinationUrl.ToLower());
 
                 if (ExistLink != null)
                 {
-                    return View(ExistLink);
+                    result.Data = new { ShortenedURL = ExistLink.ShortCode };
+                    return result;
                 }
                 else
                 {
@@ -40,11 +46,12 @@ namespace MiniMe.Controllers
                     link.LastAccessed = DateTime.Now;
                     db.Links.Add(link);
                     db.SaveChanges();
-                    return View(link);
+                    result.Data = new { ShortenedURL = link.ShortCode };
+                    return result;                    
                 }
             }
 
-            return View(link);
+            return result;
         }
 
       
@@ -98,8 +105,30 @@ namespace MiniMe.Controllers
                 ShortenedURL += link.ShortCode;
             } 
 
-            return Json(new { ShortenedURL = ShortenedURL }, JsonRequestBehavior.AllowGet);
+            JsonResult result = new JsonResult();
+            result.JsonRequestBehavior = JsonRequestBehavior.AllowGet;
+            result.Data = new { ShortenedURL = ShortenedURL };
+
+            return result;
+
+
+
+            //return Json(new { ShortenedURL = ShortenedURL }, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public JsonResult Shorten(string Url)
+        {
+            string ShortenedURL = "http://localhost:58342/";
+
+            JsonResult result = new JsonResult();
+            result.JsonRequestBehavior = JsonRequestBehavior.AllowGet;
+            result.Data = new { ShortenedURL = ShortenedURL };
+            return result;
+        }
+
+        
+
 
         private string CreateUnusedShortCode()
         {           
