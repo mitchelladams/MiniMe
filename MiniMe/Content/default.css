@@ -2,17 +2,11 @@
     background-color: #3b5999;
     font-size: .85em;
     font-family: "Trebuchet MS", Verdana, Helvetica, Sans-Serif;
-    margin: 0;
-    padding: 0;
-    color:#0000000;
+    margin: 0; padding: 0; color:#000000;
 }
 
 
-.page {
-    width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-}
+.page { width: 400px; margin-left: auto; margin-right: auto;}
 
 
 header h1, #header h1 {
@@ -25,7 +19,6 @@ header h1, #header h1 {
 }
 
 
-
 #main {
     padding: 30px 30px 15px 30px;
     background-color: #fff;
@@ -35,12 +28,7 @@ header h1, #header h1 {
     text-align:center;
 }
 
-
-
-
-
-footer, 
-#footer {
+footer, #footer {
     background-color: #fff;
     color: #999;
     padding: 10px 0;
@@ -53,15 +41,12 @@ footer,
     -moz-border-radius: 0 0 8px 8px;
 }
 
-
-
-
 input[type="url"] {
     border: 1px solid #ccc;
     padding: 2px 2px 2px 22px;
     color: #444;
     width: 200px;
-    background-image: url('http://localhost:58342/content/images/link.png');
+    background-image: url('/content/images/link.png');
     background-repeat: no-repeat;   
     background-color: transparent;
     border-radius:4px;
@@ -72,13 +57,7 @@ input[type="url"] {
     
 }
 
-.input span {
-  position: absolute;
-  margin-left: 25px;
-  padding-top:7px;
-  color: #999;
-}
-
+.input span { position: absolute; margin-left: 25px; padding-top:7px; color: #999;}
 
 
 input[type="submit"] {
@@ -109,8 +88,20 @@ input[type="submit"]:hover {background-color: #aa5353; cursor:pointer;}
     -moz-border-radius: 8px;
 }
 
+div.error {	color:#f00; margin-top:5px;}
 
+div.copyButton 
+{
+    padding: 2px;
+    border:1px solid #000000;
+    background-color:#FFCC00;
+    border-radius:4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;    
+}
 
+div.copyButton.hover { background-color:#FF9900; }
+	
 /* Login and Account Menu */
 #logindisplay {
     float:right;

@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+    <script lang="en" type="text/javascript">
+        $(document).ready(function () {
+            var serviceURL = 'http://localhost:58342/shorten/?url=' + window.location;
+
+            $(document).add("a").html("Get a short link").attr("href", serviceURL).attr("id", "getLink");
+           // $('#getLink').after($("div").css("display", "none").attr("id", "shortLink"));
+            
+            $('#getLink').click(function () {
+
+                $.ajax({
+                    url: serviceURL,
+                    type: "GET",
+                    success: function (data) {
+                        $('#getLink').hide();
+                        $('#shortLink').show();
+                        $('#shortLink').html(data.ShortURL);
+                    },
+                    error: function (data) {
+                        $('#getLink').hide();
+                        $("#shortLink").show().text("We had the following error: " + data.Message);
+                    }
+                });
+
+                return false;
+
+
+            });
+
+        });
+
+
+    
+
+</script>
+</head>
+<body>
+
+
+<!--<a href="#" id="getLink">Get a short link to this page</a>
+<div id="shortLink"  style="display:none;"></div>-->
+
+</body>
+</html>

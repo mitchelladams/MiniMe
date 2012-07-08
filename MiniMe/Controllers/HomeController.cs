@@ -8,6 +8,7 @@ using System.Data.Entity;
 using System.Data;
 using System.Web;
 using System.Configuration;
+using System.Text.RegularExpressions;
 
 namespace MiniMe.Controllers
 {
@@ -28,11 +29,11 @@ namespace MiniMe.Controllers
             if (ModelState.IsValid)
             {             
                 //Check to see if the URL already exists in the database
-                Link ExistLink = db.Links.SingleOrDefault(l => l.DestinationUrl.ToLower() == link.DestinationUrl);
+                Link ExistLink = db.Links.SingleOrDefault(l => l.DestinationUrl.Trim().ToLower() == link.DestinationUrl.Trim().ToLower());
 
                 if (ExistLink != null)
                 {                   
-                    return GetLinkAsJSON(ExistLink);
+                    return GetLinkAsJSON(ExistLink, true);
                 }
                 else
                 {
@@ -44,11 +45,11 @@ namespace MiniMe.Controllers
                     db.Links.Add(link);
                     db.SaveChanges();
 
-                    return GetLinkAsJSON(link);       
+                    return GetLinkAsJSON(link, true);       
                 }
             }
 
-            return GetLinkAsJSON(null);
+            return GetLinkAsJSON(null, false);
         }
       
         public ActionResult GetDestination()
@@ -73,47 +74,49 @@ namespace MiniMe.Controllers
             return RedirectPermanent(link.DestinationUrl);
         }
 
-
-        //TODO: Limit to IP range, error checking
-        public JsonResult Shorten()
+        public JsonResult Shorten(string url = "")
         {
-            string ReferrerURL = Request.UrlReferrer.ToString().ToLower();            
-
-            if (!string.IsNullOrEmpty(ReferrerURL))
+            if (!string.IsNullOrEmpty(url))
             {
-                Link ExistLink = db.Links.SingleOrDefault(l => l.DestinationUrl.ToLower() == ReferrerURL);
-                if (ExistLink != null)
+                if (IsUrlValid(url))
                 {
-                    return GetLinkAsJSON(ExistLink);
-                }
-                else
-                {
-                    Link link = new Link();
-                    link.LinkID = Guid.NewGuid();
-                    link.DestinationUrl = ReferrerURL;
-                    link.AccessCount = 0;
-                    link.DateCreated = DateTime.Now;
-                    link.LastAccessed = DateTime.Now;
-                    link.ShortCode = CreateUnusedShortCode();
-                    db.Links.Add(link);
-                    db.SaveChanges();
-                    return GetLinkAsJSON(link);
-                }
+                    // the url is valid
+                    Link ExistLink = db.Links.SingleOrDefault(l => l.DestinationUrl.Trim().ToLower() == url.Trim().ToLower());
+                    if (ExistLink != null)
+                    {
+                        return GetLinkAsJSON(ExistLink, true);
+                    }
+                    else
+                    {
+                        Link link = new Link();
+                        link.LinkID = Guid.NewGuid();
+                        link.DestinationUrl = url;
+                        link.AccessCount = 0;
+                        link.DateCreated = DateTime.Now;
+                        link.LastAccessed = DateTime.Now;
+                        link.ShortCode = CreateUnusedShortCode();
+                        db.Links.Add(link);
+                        db.SaveChanges();
+                        return GetLinkAsJSON(link, true);
+                    }
+                }                
             }
+          
+            return GetLinkAsJSON(null, false);             
             
-            return GetLinkAsJSON(null);           
         }    
         
     
-        private JsonResult GetLinkAsJSON(Link link)
+        private JsonResult GetLinkAsJSON(Link link, bool isGood)
         {
             JsonResult result = new JsonResult();
             result.JsonRequestBehavior = JsonRequestBehavior.AllowGet;
-            if (link != null)
+            if (link != null && isGood)
             {
                 result.Data = new
                 {
                     Success = true,
+                    Message = "Valid",
                     ShortURL = this.BaseURL + link.ShortCode,
                     AccessCount = link.AccessCount,
                     OriginalURL = link.DestinationUrl
@@ -124,6 +127,7 @@ namespace MiniMe.Controllers
                 result.Data = new
                 {
                     Success = false,
+                    Message = "Invalid request. Please supply a complete url such as http://www.google.com"                    
                 };
             }
             return result;           
@@ -163,6 +167,12 @@ namespace MiniMe.Controllers
                 chars[i] = _allowedChars[(int)randomBytes[i] % allowedCharCount];
             }
             return new string(chars);
+        }
+
+
+        private bool IsUrlValid(string url)
+        {
+            return Regex.IsMatch(url, @"(http|https)://([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?");
         }
 
         #endregion

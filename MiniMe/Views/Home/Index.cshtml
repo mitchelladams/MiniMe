@@ -6,66 +6,80 @@
 
 @section HeaderScripts{
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery-ui-1.8.11.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery-field-labels.js")" type="text/javascript"></script>
-<style>
-#divError
-{
-    color:red;
-    margin-top:5px;
-}
-
-</style>
+<script src="@Url.Content("~/Scripts/ZeroClipboard.js")" type="text/javascript"></script>
 
 <script lang="en" type="text/javascript">
-
+    ZeroClipboard.setMoviePath('@Url.Content("~/content/ZeroClipboard.swf")');
 
     $(document).ready(function () {
 
-
-        $("#DestinationURL").keyup(function () {
-            if ($("#createform").validate({ showErrors: function(errorMap, errorList){} }).element("#DestinationURL")) {               
-                $("#create").show();
-            }
-            else {
-                $("#create").hide();
-            }
-        });
-
-            
-
-
-
-
-        $('#create').click(function () {
-            $('shortenedURL').hide();
-
-            var Link = { DestinationURL: $('#DestinationURL').val() };
+        var postAJAX = function () {
+            var Link = { DestinationURL: $.trim($('#inputURL').val()) };
             $.ajax({
-
                 url: '/',
                 type: "POST",
                 data: JSON.stringify(Link),
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
-                    $('#shortenedURL').fadeIn("slow");
-                    $('#shortURL').html(data.ShortURL);
+                                 
+                    $('#shortenedURL').show();
+                    $('#shortURL').html(data.ShortURL);                              
+                    $("#shortenedURL").animate({ backgroundColor: "#f2f5fc" }, 500);
+                    $("#shortenedURL").animate({ backgroundColor: "#d2ddf7" }, 500);
+           
+
+                    var clip = new ZeroClipboard.Client();
+
+                    clip.setText(data.ShortURL);
+                    clip.setHandCursor(true);
+                    clip.setCSSEffects(true);
+
+                    clip.addEventListener('mouseDown', function (client) {
+                        $("#d_clip_button").text("Copied");
+                    });
+
+                    clip.glue('d_clip_button');
+
+
                 },
                 error: function (data) {
-                    alert(data.Message);
+                    $("#divError").show().text("We had the following error: " + data.Message);
                 }
             });
+        }
+
+
+        $('#create').click(function () {
+
+            var currURL = $("#inputURL").val();
+            if ($.trim(currURL) != "") $("#inputURL").val($.trim(currURL));
+
+            var isVal = $("#createform").validate({ showErrors: function (errorMap, errorList) { } }).element("#inputURL");
+            if (isVal) {
+                postAJAX();               
+                $("#divError").hide()
+            }
+            else {
+                $("#divError").show().text("Please enter a valid URL such as http://www.google.com");
+            }
             return false;
         });
+
+
+
+
+
+
 
 
 
     });
 
 
-
-
-
+    
 
 </script>
 
@@ -76,20 +90,19 @@
 {    
     <label class="input">
     <span>Paste a link</span>
-    <input type="url" title="" id="DestinationURL" name="DestinationURL" class="url" />   
+    <input type="url" title="" id="inputURL" name="inputURL" class="url" />   
     </label>        
-            <input type="submit" value="Create" id="create" name="create" style="display:none;" /><br />
+    <input type="submit" value="Create" id="create" name="create" title="Shorten the URL" /><br />
 }
 
-<div id="divError" style="display:none;"></div>
-<div id="shortenedURL" style="display:none;margin-top:20px;">
-
-<div id="shortURL" style="float:left;">
+<div id="divError" style="display:none;" class="error">
 </div>
-
-<div id="copyLink" style="float:right;">
-<img src="/content/images/page_copy.png" /> Copy
-</div>
-<br style="clear:both;" />
-
+<div id="shortenedURL" style="display:none; margin-top: 20px;">
+    <div id="shortURL" style="float: left;padding-top:2px;">
+    </div>
+    <div id="copyLink" style="float: right;" title="Copy to the clipboard">
+        <div id="d_clip_button" class="copyButton" >
+            Copy</div>
+    </div>
+    <br style="clear: both;" />
 </div>
