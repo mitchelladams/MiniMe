@@ -1,7 +1,10 @@
-﻿@{
-    ViewBag.Title = "NotFound";
+﻿@model MiniMe.Models.Link
+
+@{
+    ViewBag.Title = "Not Found";
+    ViewBag.BaseURL = "Code Not Found";
 }
 
-<h2>NotFound</h2>
 
-The code "@ViewBag.ShortCode" was not found.  Please note that codes are case sensitive.
+The code <strong>"@ViewBag.ShortCode"</strong> was not found.<br />Please note that codes are CaSe SeNsItIvE.<br />
+<a href="/">Get a shortened link</a>.

@@ -7,35 +7,32 @@ using System.Security.Cryptography;
 using System.Data.Entity;
 using System.Data;
 using System.Web;
+using System.Configuration;
 
 namespace MiniMe.Controllers
 {
     public class HomeController : Controller
     {
         private LinkDBContext db = new LinkDBContext();
+        private string BaseURL = ConfigurationManager.AppSettings["BaseURL"].ToString();
 
         public ActionResult Index()
         {
+            ViewBag.BaseURL = BaseURL.Replace("http://", "").Replace("/", "");
             return View();
         }
 
         [HttpPost]
         public JsonResult Index(Link link)
-        {
-            string ShortenedURL = "";
-            JsonResult result = new JsonResult();
-            result.JsonRequestBehavior = JsonRequestBehavior.AllowGet;
-            result.Data = new { ShortenedURL = ShortenedURL };
-
+        {                                 
             if (ModelState.IsValid)
             {             
                 //Check to see if the URL already exists in the database
-                Link ExistLink = db.Links.SingleOrDefault(l => l.DestinationUrl.ToLower() == link.DestinationUrl.ToLower());
+                Link ExistLink = db.Links.SingleOrDefault(l => l.DestinationUrl.ToLower() == link.DestinationUrl);
 
                 if (ExistLink != null)
-                {
-                    result.Data = new { ShortenedURL = ExistLink.ShortCode };
-                    return result;
+                {                   
+                    return GetLinkAsJSON(ExistLink);
                 }
                 else
                 {
@@ -46,14 +43,13 @@ namespace MiniMe.Controllers
                     link.LastAccessed = DateTime.Now;
                     db.Links.Add(link);
                     db.SaveChanges();
-                    result.Data = new { ShortenedURL = link.ShortCode };
-                    return result;                    
+
+                    return GetLinkAsJSON(link);       
                 }
             }
 
-            return result;
+            return GetLinkAsJSON(null);
         }
-
       
         public ActionResult GetDestination()
         {                               
@@ -65,11 +61,11 @@ namespace MiniMe.Controllers
             
             if (link == null)
             {
-                ViewBag.ShortCode = shortCode;
+                ViewBag.ShortCode = shortCode;                
                 return View("NotFound");
             }
 
-            link.AccessCount += 1;
+            link.AccessCount++;
             link.LastAccessed = DateTime.Now;
             db.Entry(link).State = EntityState.Modified;
             db.SaveChanges();
@@ -81,57 +77,69 @@ namespace MiniMe.Controllers
         //TODO: Limit to IP range, error checking
         public JsonResult Shorten()
         {
-            string ReferrerURL = Request.UrlReferrer.ToString().ToLower();
+            string ReferrerURL = Request.UrlReferrer.ToString().ToLower();            
 
-            Link ExistLink = db.Links.SingleOrDefault(l => l.DestinationUrl.ToLower() == ReferrerURL);
-
-            string ShortenedURL = "http://localhost:58342/";
-
-            if (ExistLink != null)
+            if (!string.IsNullOrEmpty(ReferrerURL))
             {
-                ShortenedURL += ExistLink.ShortCode;
+                Link ExistLink = db.Links.SingleOrDefault(l => l.DestinationUrl.ToLower() == ReferrerURL);
+                if (ExistLink != null)
+                {
+                    return GetLinkAsJSON(ExistLink);
+                }
+                else
+                {
+                    Link link = new Link();
+                    link.LinkID = Guid.NewGuid();
+                    link.DestinationUrl = ReferrerURL;
+                    link.AccessCount = 0;
+                    link.DateCreated = DateTime.Now;
+                    link.LastAccessed = DateTime.Now;
+                    link.ShortCode = CreateUnusedShortCode();
+                    db.Links.Add(link);
+                    db.SaveChanges();
+                    return GetLinkAsJSON(link);
+                }
+            }
+            
+            return GetLinkAsJSON(null);           
+        }    
+        
+    
+        private JsonResult GetLinkAsJSON(Link link)
+        {
+            JsonResult result = new JsonResult();
+            result.JsonRequestBehavior = JsonRequestBehavior.AllowGet;
+            if (link != null)
+            {
+                result.Data = new
+                {
+                    Success = true,
+                    ShortURL = this.BaseURL + link.ShortCode,
+                    AccessCount = link.AccessCount,
+                    OriginalURL = link.DestinationUrl
+                };
             }
             else
             {
-                Link link = new Link();
-                link.LinkID = Guid.NewGuid();
-                link.DestinationUrl = Request.UrlReferrer.ToString();
-                link.AccessCount = 0;
-                link.DateCreated = DateTime.Now;
-                link.LastAccessed = DateTime.Now;
-                link.ShortCode = CreateUnusedShortCode();
-                db.Links.Add(link);
-                db.SaveChanges();
-                ShortenedURL += link.ShortCode;
-            } 
+                result.Data = new
+                {
+                    Success = false,
+                };
+            }
+            return result;           
 
-            JsonResult result = new JsonResult();
-            result.JsonRequestBehavior = JsonRequestBehavior.AllowGet;
-            result.Data = new { ShortenedURL = ShortenedURL };
-
-            return result;
-
-
-
-            //return Json(new { ShortenedURL = ShortenedURL }, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
-        public JsonResult Shorten(string Url)
+        protected override void Dispose(bool disposing)
         {
-            string ShortenedURL = "http://localhost:58342/";
-
-            JsonResult result = new JsonResult();
-            result.JsonRequestBehavior = JsonRequestBehavior.AllowGet;
-            result.Data = new { ShortenedURL = ShortenedURL };
-            return result;
+            db.Dispose();
+            base.Dispose(disposing);
         }
 
-        
-
+        #region Utilities
 
         private string CreateUnusedShortCode()
-        {           
+        {
             for (int x = 0; x < 10; x++)
             {
                 string newKey = CreateRandomAlphaNumericSequence(5);
@@ -157,11 +165,7 @@ namespace MiniMe.Controllers
             return new string(chars);
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            db.Dispose();
-            base.Dispose(disposing);
-        }
-        
+        #endregion
+
     }
 }
