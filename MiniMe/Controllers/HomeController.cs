@@ -1,14 +1,11 @@
-﻿using System.Web.Mvc;
-using MiniMe.Models;
-using System.Linq;
-using System.Collections.Generic;
-using System;
-using System.Security.Cryptography;
-using System.Data.Entity;
-using System.Data;
-using System.Web;
+﻿using System;
 using System.Configuration;
+using System.Data;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using System.Web.Mvc;
+using MiniMe.Models;
 
 namespace MiniMe.Controllers
 {
@@ -17,12 +14,21 @@ namespace MiniMe.Controllers
         private LinkDBContext db = new LinkDBContext();
         private string BaseURL = ConfigurationManager.AppSettings["BaseURL"].ToString();
 
+        /// <summary>
+        /// Default view of the main page
+        /// </summary>
+        /// <returns></returns>
         public ActionResult Index()
         {
             ViewBag.BaseURL = BaseURL.Replace("http://", "").Replace("/", "");
             return View();
         }
 
+        /// <summary>
+        /// Takes a form submission and returns JSON response
+        /// </summary>
+        /// <param name="link"></param>
+        /// <returns></returns>
         [HttpPost]
         public JsonResult Index(Link link)
         {                                 
@@ -52,6 +58,10 @@ namespace MiniMe.Controllers
             return GetLinkAsJSON(null, false);
         }
       
+        /// <summary>
+        /// Checks the ID of the route against the database and goes from there.
+        /// </summary>
+        /// <returns></returns>
         public ActionResult GetDestination()
         {                               
             string shortCode = RouteData.Values["id"].ToString();
@@ -73,6 +83,7 @@ namespace MiniMe.Controllers
 
             return RedirectPermanent(link.DestinationUrl);
         }
+
 
         public JsonResult Shorten(string url = "")
         {
@@ -144,13 +155,13 @@ namespace MiniMe.Controllers
 
         private string CreateUnusedShortCode()
         {
-            for (int x = 0; x < 10; x++)
+            for (int x = 0; x < 20; x++) //try 20 times to generate a code
             {
                 string newKey = CreateRandomAlphaNumericSequence(5);
                 if (db.Links.Where(i => i.ShortCode == newKey).Count() == 0)
                     return newKey;
             }
-            throw new Exception();
+            throw new Exception("A short code could not be generated.");
         }
 
         private string CreateRandomAlphaNumericSequence(int length)
