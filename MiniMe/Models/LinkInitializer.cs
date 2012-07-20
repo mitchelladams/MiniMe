@@ -7,8 +7,8 @@ using System.Data.Entity;
 
 namespace MiniMe.Models
 {
-    public class LinkInitializer : DropCreateDatabaseIfModelChanges<LinkDBContext>
-    {
+    public class LinkInitializer : CreateDatabaseIfNotExists<LinkDBContext>
+    {              
         protected override void Seed(LinkDBContext context)
         {
             var links = new List<Link>
@@ -16,7 +16,7 @@ namespace MiniMe.Models
                 new Link { AccessCount = 0,
                             DateCreated = DateTime.Now,
                             LastAccessed = DateTime.Now,
-                            DestinationUrl = "http://my.pba.edu",
+                            DestinationUrl = "http://www.redcross.org",
                             LinkID = Guid.NewGuid(),
                             ShortCode = "abcde"
                 },
@@ -41,6 +41,8 @@ namespace MiniMe.Models
 
 
             links.ForEach(d => context.Links.Add(d));
+            context.SaveChanges();
+
 
         }
     }

@@ -2,6 +2,7 @@
 
 @{
     ViewBag.Title = "Shorten a Link";
+    ViewBag.H1 = "Shorten a Link";
 }
 
 @section HeaderScripts{
@@ -13,6 +14,10 @@
     ZeroClipboard.setMoviePath('@Url.Content("~/content/ZeroClipboard.swf")');
 
     $(document).ready(function () {
+
+        $('#loading').hide().ajaxStart(function () { $(this).show(); }).ajaxStop(function () { $(this).hide(); });
+
+
 
         var postAJAX = function () {
             var Link = { DestinationURL: $.trim($('#inputURL').val()), ShortCode: $.trim($('#ShortCode').val()) };
@@ -83,7 +88,6 @@
 
 }
 
-
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "createform" }))
 {    
     <input type="url" placeholder="Paste a link" id="inputURL" name="inputURL" class="url" />
@@ -93,6 +97,7 @@
 
 <div id="divError" style="display:none;" class="error">
 </div>
+
 <div id="shortenedURL" style="display:none; margin-top: 20px;">
     <div id="shortURL" style="float: left;padding-top:2px;">
     </div>
@@ -101,4 +106,8 @@
             Copy</div>
     </div>
     <br style="clear: both;" />
+</div>
+
+<div id="loading">
+    Loading
 </div>

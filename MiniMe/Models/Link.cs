@@ -15,6 +15,7 @@ namespace MiniMe.Models
 
         public DateTime DateCreated { get; set; }
         
+        [MaxLength(128)]
         public string ShortCode { get; set; }
         
         [Required(ErrorMessage="Destination URL is required")]    
@@ -30,5 +31,8 @@ namespace MiniMe.Models
     public class LinkDBContext : DbContext
     {
         public DbSet<Link> Links { get; set; }
+
+
+        
     }
 }

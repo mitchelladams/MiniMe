@@ -19,8 +19,14 @@ namespace MiniMe.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Create a shortened url
+        /// </summary>
+        /// <returns></returns>
         public ActionResult Create()
         {
+            //Checks to see if a custom short code is wanted by looking at the route's ID
+            //A hidden form field is used to pass back the requested short code.
             if (RouteData.Values["id"] != null)
             {
                 Link l = new Link();
@@ -57,6 +63,11 @@ namespace MiniMe.Controllers
             return RedirectPermanent(link.DestinationUrl);
         }
 
+        /// <summary>
+        /// Main controller to create a shortened URL.  
+        /// </summary>
+        /// <param name="link"></param>
+        /// <returns>JsonResult</returns>
         [HttpPost]
         public JsonResult Shorten(Link link)
         {         
@@ -67,10 +78,9 @@ namespace MiniMe.Controllers
                     //URL is valid
                     //Check to see if short code in use
                     if (!String.IsNullOrEmpty(link.ShortCode))
-                    {
-                        if (db.Links.Where(l => l.ShortCode == link.ShortCode).Count() > 0) return GetLinkAsJSON(null, "The short code " + link.ShortCode + " already exists.");
-                    }
-                    
+                    {             
+                        if (db.Links.Where(i => i.ShortCode == link.ShortCode).Count() > 0) return GetLinkAsJSON(null, "The short code " + link.ShortCode + " already exists.");
+                    }                    
     
                     Link ExistLink = db.Links.SingleOrDefault(l => l.DestinationUrl.Trim().ToLower() == link.DestinationUrl.Trim().ToLower());
                     if (ExistLink != null)
@@ -103,9 +113,14 @@ namespace MiniMe.Controllers
           
             return GetLinkAsJSON(null, "Please provide a valid URL such as http://www.google.com.");             
             
-        }    
-        
+        }            
     
+        /// <summary>
+        /// Formats a link as JSON
+        /// </summary>
+        /// <param name="link"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         private JsonResult GetLinkAsJSON(Link link, string message)
         {
             JsonResult result = new JsonResult();
@@ -132,7 +147,10 @@ namespace MiniMe.Controllers
 
         }
                 
-
+        /// <summary>
+        /// Closes all our database connections
+        /// </summary>
+        /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
             db.Dispose();
@@ -141,6 +159,10 @@ namespace MiniMe.Controllers
 
         #region Utilities
 
+        /// <summary>
+        /// Retrieves a new short code.
+        /// </summary>
+        /// <returns></returns>
         private string CreateUnusedShortCode()
         {
             for (int x = 0; x < 20; x++) //try 20 times to generate a code
@@ -149,15 +171,18 @@ namespace MiniMe.Controllers
                 if (db.Links.Where(i => i.ShortCode == newKey).Count() == 0)
                     return newKey;
             }
-            throw new Exception("A short code could not be generated.");
-        }
-
- 
+            throw new Exception("No code could be created.");
+        } 
 
 
+        /// <summary>
+        /// Generates a random sequence of characters
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
         private string CreateRandomAlphaNumericSequence(int length)
         {
-            String _allowedChars = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+            String _allowedChars = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
             Byte[] randomBytes = new Byte[length];
             RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
             rng.GetBytes(randomBytes);
@@ -170,8 +195,12 @@ namespace MiniMe.Controllers
             }
             return new string(chars);
         }
-
-
+        
+        /// <summary>
+        /// Basic method to validate a string for a URL
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         private bool IsUrlValid(string url)
         {
             return Regex.IsMatch(url, @"(http|https)://([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?");
