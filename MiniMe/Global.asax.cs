@@ -20,17 +20,13 @@ namespace MiniMe
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
             routes.MapRoute("Default", "", new { controller = "Home", action = "Index" });
             routes.MapRoute("Shorten", "Shorten", new { controller = "Home", action = "Shorten" });
-            //routes.MapRoute("Shorten", "Shorten/{id}", new { controller = "Home", action = "Shorten", id = UrlParameter.Optional });   
-          //  routes.MapRoute("Link", "{controller}/{action}/{id}", new { controller = "Link", action = "Index", id = UrlParameter.Optional });
-            //routes.MapRoute("Account", "{controller}
-            routes.MapRoute("GetDestination", "{id}", new { controller = "Home", action = "GetDestination", id = UrlParameter.Optional });
-            
-
+            routes.MapRoute("Create", "Create/{id}", new { controller = "Home", action = "Create", id = UrlParameter.Optional });                       
+            routes.MapRoute("GetDestination", "{id}", new { controller = "Home", action = "GetDestination", id = UrlParameter.Optional }); 
         }
 
         protected void Application_Start()
         {
-            Database.SetInitializer<LinkDBContext>(new LinkInitializer());
+            //Database.SetInitializer<LinkDBContext>(new LinkInitializer());
             AreaRegistration.RegisterAllAreas();
 
             RegisterGlobalFilters(GlobalFilters.Filters);

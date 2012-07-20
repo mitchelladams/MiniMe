@@ -57,8 +57,6 @@ input[type="url"] {
     
 }
 
-.input span { position: absolute; margin-left: 25px; padding-top:7px; color: #999;}
-
 
 input[type="submit"] {
     padding: 2px;

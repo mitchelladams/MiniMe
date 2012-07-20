@@ -14,49 +14,22 @@ namespace MiniMe.Controllers
         private LinkDBContext db = new LinkDBContext();
         private string BaseURL = ConfigurationManager.AppSettings["BaseURL"].ToString();
 
-        /// <summary>
-        /// Default view of the main page
-        /// </summary>
-        /// <returns></returns>
         public ActionResult Index()
-        {
-            ViewBag.BaseURL = BaseURL.Replace("http://", "").Replace("/", "");
+        {            
             return View();
         }
 
-        /// <summary>
-        /// Takes a form submission and returns JSON response
-        /// </summary>
-        /// <param name="link"></param>
-        /// <returns></returns>
-        [HttpPost]
-        public JsonResult Index(Link link)
-        {                                 
-            if (ModelState.IsValid)
-            {             
-                //Check to see if the URL already exists in the database
-                Link ExistLink = db.Links.SingleOrDefault(l => l.DestinationUrl.Trim().ToLower() == link.DestinationUrl.Trim().ToLower());
-
-                if (ExistLink != null)
-                {                   
-                    return GetLinkAsJSON(ExistLink, true);
-                }
-                else
-                {
-                    link.LinkID = Guid.NewGuid();
-                    link.DateCreated = DateTime.Now;
-                    link.AccessCount = 0;
-                    link.ShortCode = CreateUnusedShortCode();
-                    link.LastAccessed = DateTime.Now;
-                    db.Links.Add(link);
-                    db.SaveChanges();
-
-                    return GetLinkAsJSON(link, true);       
-                }
-            }
-
-            return GetLinkAsJSON(null, false);
-        }
+        public ActionResult Create()
+        {
+            if (RouteData.Values["id"] != null)
+            {
+                Link l = new Link();
+                l.ShortCode = RouteData.Values["id"].ToString();
+                return View(l);
+            }           
+            return View();
+        }       
+  
       
         /// <summary>
         /// Checks the ID of the route against the database and goes from there.
@@ -84,53 +57,67 @@ namespace MiniMe.Controllers
             return RedirectPermanent(link.DestinationUrl);
         }
 
-
-        public JsonResult Shorten(string url = "")
-        {
-            if (!string.IsNullOrEmpty(url))
+        [HttpPost]
+        public JsonResult Shorten(Link link)
+        {         
+            if (!string.IsNullOrEmpty(link.DestinationUrl))
             {
-                if (IsUrlValid(url))
+                if (IsUrlValid(link.DestinationUrl))
                 {
-                    // the url is valid
-                    Link ExistLink = db.Links.SingleOrDefault(l => l.DestinationUrl.Trim().ToLower() == url.Trim().ToLower());
+                    //URL is valid
+                    //Check to see if short code in use
+                    if (!String.IsNullOrEmpty(link.ShortCode))
+                    {
+                        if (db.Links.Where(l => l.ShortCode == link.ShortCode).Count() > 0) return GetLinkAsJSON(null, "The short code " + link.ShortCode + " already exists.");
+                    }
+                    
+    
+                    Link ExistLink = db.Links.SingleOrDefault(l => l.DestinationUrl.Trim().ToLower() == link.DestinationUrl.Trim().ToLower());
                     if (ExistLink != null)
                     {
-                        return GetLinkAsJSON(ExistLink, true);
+                        return GetLinkAsJSON(ExistLink, "");
                     }
                     else
                     {
-                        Link link = new Link();
-                        link.LinkID = Guid.NewGuid();
-                        link.DestinationUrl = url;
-                        link.AccessCount = 0;
-                        link.DateCreated = DateTime.Now;
-                        link.LastAccessed = DateTime.Now;
-                        link.ShortCode = CreateUnusedShortCode();
-                        db.Links.Add(link);
+                        Link newLink = new Link();
+                        newLink.LinkID = Guid.NewGuid();
+                        newLink.DestinationUrl = link.DestinationUrl;
+                        newLink.AccessCount = 0;
+                        newLink.DateCreated = DateTime.Now;
+                        newLink.LastAccessed = DateTime.Now;
+
+                        if (String.IsNullOrEmpty(link.ShortCode))
+                        {
+                            newLink.ShortCode = CreateUnusedShortCode();
+                        }
+                        else
+                        {                          
+                            newLink.ShortCode = link.ShortCode;                           
+                        }
+                        db.Links.Add(newLink);
                         db.SaveChanges();
-                        return GetLinkAsJSON(link, true);
+                        return GetLinkAsJSON(newLink, "");
                     }
                 }                
             }
           
-            return GetLinkAsJSON(null, false);             
+            return GetLinkAsJSON(null, "Please provide a valid URL such as http://www.google.com.");             
             
         }    
         
     
-        private JsonResult GetLinkAsJSON(Link link, bool isGood)
+        private JsonResult GetLinkAsJSON(Link link, string message)
         {
             JsonResult result = new JsonResult();
             result.JsonRequestBehavior = JsonRequestBehavior.AllowGet;
-            if (link != null && isGood)
+            if (link != null)
             {
                 result.Data = new
                 {
-                    Success = true,
-                    Message = "Valid",
+                    Success = true,                   
                     ShortURL = this.BaseURL + link.ShortCode,
                     AccessCount = link.AccessCount,
-                    OriginalURL = link.DestinationUrl
+                    OriginalURL = link.DestinationUrl                    
                 };
             }
             else
@@ -138,12 +125,13 @@ namespace MiniMe.Controllers
                 result.Data = new
                 {
                     Success = false,
-                    Message = "Invalid request. Please supply a complete url such as http://www.google.com"                    
+                    Message = message                    
                 };
             }
             return result;           
 
         }
+                
 
         protected override void Dispose(bool disposing)
         {
@@ -163,6 +151,9 @@ namespace MiniMe.Controllers
             }
             throw new Exception("A short code could not be generated.");
         }
+
+ 
+
 
         private string CreateRandomAlphaNumericSequence(int length)
         {
