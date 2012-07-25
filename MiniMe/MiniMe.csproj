@@ -84,8 +84,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\default.css" />
+    <Content Include="Content\images\busy.gif" />
     <Content Include="Content\images\link.png" />
-    <Content Include="Content\shortenlink.htm" />
     <Content Include="Content\ZeroClipboard.swf" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\jquery-1.7.2.min.js" />
@@ -146,9 +146,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Shared\_Layout.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\Shared\_LogOnPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\_ViewStart.cshtml" />
