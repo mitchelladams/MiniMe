@@ -25,3 +25,20 @@ C:\Git Repository\MiniMe\MiniMe\bin\EntityFramework.xml
 C:\Git Repository\MiniMe\MiniMe\obj\Debug\ResolveAssemblyReference.cache
 C:\Git Repository\MiniMe\MiniMe\obj\Debug\MiniMe.dll
 C:\Git Repository\MiniMe\MiniMe\obj\Debug\MiniMe.pdb
+D:\Dropbox\GitHub\MiniMe\MiniMe\bin\MiniMe.dll
+D:\Dropbox\GitHub\MiniMe\MiniMe\bin\MiniMe.pdb
+D:\Dropbox\GitHub\MiniMe\MiniMe\bin\Microsoft.Web.Infrastructure.dll
+D:\Dropbox\GitHub\MiniMe\MiniMe\bin\System.Web.WebPages.Razor.dll
+D:\Dropbox\GitHub\MiniMe\MiniMe\bin\System.Web.WebPages.dll
+D:\Dropbox\GitHub\MiniMe\MiniMe\bin\System.Web.WebPages.Deployment.dll
+D:\Dropbox\GitHub\MiniMe\MiniMe\bin\System.Web.Razor.dll
+D:\Dropbox\GitHub\MiniMe\MiniMe\bin\System.Web.Helpers.dll
+D:\Dropbox\GitHub\MiniMe\MiniMe\bin\System.Web.Mvc.dll
+D:\Dropbox\GitHub\MiniMe\MiniMe\bin\DataAnnotationsExtensions.ClientValidation.dll
+D:\Dropbox\GitHub\MiniMe\MiniMe\bin\DataAnnotationsExtensions.dll
+D:\Dropbox\GitHub\MiniMe\MiniMe\bin\EntityFramework.dll
+D:\Dropbox\GitHub\MiniMe\MiniMe\bin\WebActivator.dll
+D:\Dropbox\GitHub\MiniMe\MiniMe\bin\EntityFramework.xml
+D:\Dropbox\GitHub\MiniMe\MiniMe\obj\Debug\MiniMe.csprojResolveAssemblyReference.cache
+D:\Dropbox\GitHub\MiniMe\MiniMe\obj\Debug\MiniMe.dll
+D:\Dropbox\GitHub\MiniMe\MiniMe\obj\Debug\MiniMe.pdb
