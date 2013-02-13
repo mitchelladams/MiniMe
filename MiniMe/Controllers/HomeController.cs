@@ -1,57 +1,44 @@
-﻿using System;
+﻿using MiniMe.Models;
+using System;
 using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
-using MiniMe.Models;
 
 namespace MiniMe.Controllers
 {
     public class HomeController : Controller
     {
-        private LinkDBContext db = new LinkDBContext();
+        private MiniMeContext db = new MiniMeContext();
         private string BaseURL = ConfigurationManager.AppSettings["BaseURL"].ToString();
 
         public ActionResult Index()
-        {            
+        {
             return View();
         }
 
-        /// <summary>
-        /// Create a shortened url
-        /// </summary>
-        /// <returns></returns>
         public ActionResult Create()
         {
-            //Checks to see if a custom short code is wanted by looking at the route's ID
-            //A hidden form field is used to pass back the requested short code.
-            if (RouteData.Values["id"] != null)
-            {
-                Link l = new Link();
-                l.ShortCode = RouteData.Values["id"].ToString();
-                return View(l);
-            }           
             return View();
-        }       
-  
-      
+        }
+
         /// <summary>
         /// Checks the ID of the route against the database and goes from there.
         /// </summary>
         /// <returns></returns>
         public ActionResult GetDestination()
-        {                               
+        {
             string shortCode = RouteData.Values["id"].ToString();
 
             if (string.IsNullOrEmpty(shortCode)) return View("Index");
 
             Link link = db.Links.SingleOrDefault(l => l.ShortCode == shortCode);
-            
+
             if (link == null)
             {
-                ViewBag.ShortCode = shortCode;                
+                ViewBag.ShortCode = shortCode;
                 return View("NotFound");
             }
 
@@ -60,6 +47,25 @@ namespace MiniMe.Controllers
             db.Entry(link).State = EntityState.Modified;
             db.SaveChanges();
 
+            try
+            {
+                //Record a click
+                Click c = new Click();
+                c.ClickID = Guid.NewGuid();
+                c.ClientDevice = Request.UserAgent;
+                c.ClientIP = Request.UserHostAddress;
+                c.DateCreated = DateTime.Now;
+                c.DestinationUrl = link.DestinationUrl.ToLower();
+                c.ShortCodeUsed = shortCode;
+                if (User.Identity.IsAuthenticated) c.UserID = User.Identity.Name;
+                db.Entry(c).State = EntityState.Added;
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                //TODO: Handle the exception better
+            }
+
             return RedirectPermanent(link.DestinationUrl);
         }
 
@@ -67,25 +73,31 @@ namespace MiniMe.Controllers
         /// Main controller to create a shortened URL.  
         /// </summary>
         /// <param name="link"></param>
-        /// <returns>JsonResult</returns>
-        [HttpPost]
-        public JsonResult Shorten(Link link)
-        {         
+        /// <returns>JsonpResult</returns>
+        public JsonpResult Shorten(Link link)
+        {
             if (!string.IsNullOrEmpty(link.DestinationUrl))
             {
-                if (IsUrlValid(link.DestinationUrl))
+                if (IsUrlValid(link.DestinationUrl)) //Check to see if the URL is valid.
                 {
-                    //URL is valid
+                    //This will test to see if the user wants to use a custom code by passing in an ID value in the URL
+                    //Example Shorten\mycode\callback?
+                    if (String.IsNullOrEmpty(link.ShortCode) && RouteData.Values["id"] != null)
+                    {
+                        link.ShortCode = RouteData.Values["id"].ToString();
+                    }
+
                     //Check to see if short code in use
                     if (!String.IsNullOrEmpty(link.ShortCode))
-                    {             
-                        if (db.Links.Where(i => i.ShortCode == link.ShortCode).Count() > 0) return GetLinkAsJSON(null, "The short code " + link.ShortCode + " already exists.");
-                    }                    
-    
+                    {
+                        //If short code is found in database, notify the user.
+                        if (db.Links.Where(i => i.ShortCode == link.ShortCode).Count() > 0) return GetLinkAsJSONP(null, "The short code " + link.ShortCode + " already exists.");
+                    }
+
                     Link ExistLink = db.Links.SingleOrDefault(l => l.DestinationUrl.Trim().ToLower() == link.DestinationUrl.Trim().ToLower());
                     if (ExistLink != null)
                     {
-                        return GetLinkAsJSON(ExistLink, "");
+                        return GetLinkAsJSONP(ExistLink, "");
                     }
                     else
                     {
@@ -101,52 +113,51 @@ namespace MiniMe.Controllers
                             newLink.ShortCode = CreateUnusedShortCode();
                         }
                         else
-                        {                          
-                            newLink.ShortCode = link.ShortCode;                           
+                        {
+                            newLink.ShortCode = link.ShortCode;
                         }
                         db.Links.Add(newLink);
                         db.SaveChanges();
-                        return GetLinkAsJSON(newLink, "");
+                        return GetLinkAsJSONP(newLink, "");
                     }
-                }                
+                }
             }
-          
-            return GetLinkAsJSON(null, "Please provide a valid URL such as http://www.google.com.");             
-            
-        }            
-    
+
+            return GetLinkAsJSONP(null, "Please provide a valid URL such as http://www.google.com.");
+
+        }
+
         /// <summary>
-        /// Formats a link as JSON
+        /// Returns a link as JSONP
         /// </summary>
         /// <param name="link"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        private JsonResult GetLinkAsJSON(Link link, string message)
+        private JsonpResult GetLinkAsJSONP(Link link, string message)
         {
-            JsonResult result = new JsonResult();
-            result.JsonRequestBehavior = JsonRequestBehavior.AllowGet;
+            JsonpResult result = new JsonpResult();
             if (link != null)
             {
-                result.Data = new
+                var data = new
                 {
-                    Success = true,                   
+                    Success = true,
                     ShortURL = this.BaseURL + link.ShortCode,
                     AccessCount = link.AccessCount,
-                    OriginalURL = link.DestinationUrl                    
+                    OriginalURL = link.DestinationUrl
                 };
+                return new JsonpResult(data);
             }
             else
             {
-                result.Data = new
+                var data = new
                 {
                     Success = false,
-                    Message = message                    
+                    Message = message
                 };
+                return new JsonpResult(data);
             }
-            return result;           
-
         }
-                
+
         /// <summary>
         /// Closes all our database connections
         /// </summary>
@@ -160,7 +171,7 @@ namespace MiniMe.Controllers
         #region Utilities
 
         /// <summary>
-        /// Retrieves a new short code.
+        /// Creates and returns an unused short code.
         /// </summary>
         /// <returns></returns>
         private string CreateUnusedShortCode()
@@ -172,8 +183,7 @@ namespace MiniMe.Controllers
                     return newKey;
             }
             throw new Exception("No code could be created.");
-        } 
-
+        }
 
         /// <summary>
         /// Generates a random sequence of characters
@@ -195,7 +205,7 @@ namespace MiniMe.Controllers
             }
             return new string(chars);
         }
-        
+
         /// <summary>
         /// Basic method to validate a string for a URL
         /// </summary>

@@ -1,8 +1,97 @@
-﻿@{
+﻿@model MiniMe.Models.Link
+
+@{
     ViewBag.Title = "Shorten a Link";
-    ViewBag.H1 = "Mini Me";
+    ViewBag.H1 = "Shorten a Link";
 }
 
-<div>
-<a href="/create">Get a shortened link</a>.
+@section HeaderScripts{
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery-ui-1.8.11.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/ZeroClipboard.js")" type="text/javascript"></script>
+
+<script lang="en" type="text/javascript">
+    ZeroClipboard.setMoviePath('@Url.Content("~/content/ZeroClipboard.swf")');
+
+    $(document).ready(function () {
+
+        $('#create').click(function () {
+
+            var currURL = $("#inputURL").val();
+            if ($.trim(currURL) != "") $("#inputURL").val($.trim(currURL));
+
+            var isVal = $("#createform").validate({ showErrors: function (errorMap, errorList) { } }).element("#inputURL");
+            if (isVal) {
+
+                $("#loading").show();
+
+                $.getJSON("/shorten?callback=?",
+                    {
+                        "DestinationUrl": $.trim($('#inputURL').val()),
+                        "ShortCode": $.trim($('#ShortCode').val())
+                    },
+                    function (data) {
+
+                        $('#shortenedURL').show();
+                        $('#shortURL').html(data.ShortURL);
+                        $("#shortenedURL").animate({ backgroundColor: "#f2f5fc" }, 500);
+                        $("#shortenedURL").animate({ backgroundColor: "#d2ddf7" }, 500);
+
+                        var clip = new ZeroClipboard.Client();
+
+                        clip.setText(data.ShortURL);
+                        clip.setHandCursor(true);
+                        clip.setCSSEffects(true);
+
+                        clip.addEventListener('mouseDown', function (client) {
+                            $("#d_clip_button").text("Copied");
+                        });
+
+                        clip.glue('d_clip_button');
+
+                        $("#divError").hide()
+                        $("#loading").hide();
+                    });
+            }
+            else {
+                $("#divError").show().text("FROM JS. Please enter a valid URL such as http://www.google.com");
+            }
+            return false;
+        });
+    });
+
+
+    //TODO: Add better error handling to JS functions
+    //$.getJSON("example.json", function () { alert("success"); }).success(function () { alert("second success"); }).error(function () { alert("error"); }).complete(function () { alert("complete"); });
+
+
+
+
+</script>
+
+}
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "createform" }))
+{    
+    <input type="url" placeholder="Paste a link" id="inputURL" name="inputURL" class="url" />
+    @Html.HiddenFor(l => l.ShortCode)  
+    <input type="submit" value="Create" id="create" name="create" title="Shorten the URL" /><br />
+}
+
+<div id="divError" style="display:none;" class="error">
 </div>
+
+<div id="shortenedURL" style="display:none; margin-top: 20px;">
+    <div id="shortURL" style="float: left;padding-top:2px;">
+    </div>
+    <div id="copyLink" style="float: right;" title="Copy to the clipboard">
+        <div id="d_clip_button" class="copyButton" >
+            Copy</div>
+    </div>
+    <br style="clear: both;" />
+</div>
+
+<div id="loading" style="display:none;">
+    <img src="@Url.Content("~/content/images/busy.gif")" alt="shrinking" title="shrinking" /> Shrinking
+</div>
+

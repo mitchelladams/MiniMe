@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Data.Entity;
+﻿using DataAnnotationsExtensions;
+using System;
 using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
+using System.Data.Entity;
 
 namespace MiniMe.Models
 {
@@ -14,11 +11,11 @@ namespace MiniMe.Models
         public Guid LinkID { get; set; }
 
         public DateTime DateCreated { get; set; }
-        
+
         [MaxLength(128)]
         public string ShortCode { get; set; }
-        
-        [Required(ErrorMessage="Destination URL is required")]    
+
+        [Required(ErrorMessage = "Destination URL is required")]
         [Url]
         public string DestinationUrl { get; set; }
 
@@ -28,11 +25,9 @@ namespace MiniMe.Models
 
     }
 
-    public class LinkDBContext : DbContext
+    public class MiniMeContext : DbContext
     {
         public DbSet<Link> Links { get; set; }
-
-
-        
+        public DbSet<Click> Clicks { get; set; }
     }
 }
